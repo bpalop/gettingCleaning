@@ -9,10 +9,13 @@
 #5. Creates a second, independent tidy data set with the average of each variable for each 
 #   activity and each subject. 
 
-setwd("~/14-coursera/dataAnal/gettingCleaning/project")
+# Setting up the working directory for R. 
+# Don't forget to unzip the dataset in this folder since reads are made with "./UCI HAR Dataset/*"
+
+setwd("~/Documents/14-coursera/dataAnal/gettingCleaning/project")
 
 #Prepare nicer names for variables from features' file 
-features=read.csv("./data/UCI HAR Dataset/features.txt",header=F,sep=" ")
+features=read.csv("./UCI HAR Dataset/features.txt",header=F,sep=" ")
 nombres=features$V2
 #Change "-" for "_" in all feature names
 nombres=lapply(nombres,function(x) gsub("-","_",x))
@@ -31,18 +34,19 @@ chosen=grep("MEAN",nombres)
 chosen=sort(c(chosen,grep("STD",nombres)))
 
 #Make a table that links feature number and pretty name
+library(data.table)
 chosenFeatures=data.table(feature=features$V1[chosen])
 chosenFeatures[,name:=features$V2[chosen]]
 
 #Load test files and keep only the chosen variables
-subject_test=read.csv("./data/UCI HAR Dataset/test/subject_test.txt",header=F)
-X_test=read.csv("./data/UCI HAR Dataset/test/X_test.txt",header=F,sep="")[,chosen]
-activity_test=read.csv("./data/UCI HAR Dataset/test/y_test.txt",header=F,sep="")
+subject_test=read.csv("./UCI HAR Dataset/test/subject_test.txt",header=F)
+X_test=read.csv("./UCI HAR Dataset/test/X_test.txt",header=F,sep="")[,chosen]
+activity_test=read.csv("./UCI HAR Dataset/test/y_test.txt",header=F,sep="")
 
 #Load train files and keep only the chosen variables
-subject_train=read.csv("./data/UCI HAR Dataset/train/subject_train.txt",header=F)
-X_train=read.csv("./data/UCI HAR Dataset/train/X_train.txt",header=F,sep="")[,chosen]
-activity_train=read.csv("./data/UCI HAR Dataset/train/y_train.txt",header=F,sep="")
+subject_train=read.csv("./UCI HAR Dataset/train/subject_train.txt",header=F)
+X_train=read.csv("./UCI HAR Dataset/train/X_train.txt",header=F,sep="")[,chosen]
+activity_train=read.csv("./UCI HAR Dataset/train/y_train.txt",header=F,sep="")
 
 #Concat test and train for each variable in a single data frame
 subject=rbind(subject_train,subject_test)
@@ -50,7 +54,7 @@ X=rbind(X_train,X_test)
 activity=rbind(activity_train,activity_test)
 
 #Give descriptive activity names to name the activities in the data set
-actNames=read.csv("./data/UCI HAR Dataset/activity_labels.txt",header=F,sep="")
+actNames=read.csv("./UCI HAR Dataset/activity_labels.txt",header=F,sep="")
 actNames=lapply(actNames,function(x) gsub("_","",x,fixed=T))
 activity=merge(activity,actNames)$V2
 
@@ -73,4 +77,5 @@ for(i in seq(4,length(names(datos)))){
   tidy[,eval(as.name(names(datos)[i])):=aux$V1]
 }
 
-write.csv(tidy,"./data/tidy.txt")
+write.csv(tidy,"./tidy.txt")
+
